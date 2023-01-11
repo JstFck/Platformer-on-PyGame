@@ -83,18 +83,20 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(width * x, height * y)
         self.pos = width * x, height * y
 
-    def move_right(self, block, thorn):
+    def move_right(self, block, thorn, pos_x, pos_y, width=50, height=50):
         if pygame.sprite.spritecollideany(self, thorn):
-            terminate()
+            self.rect = self.image.get_rect().move(width * pos_x, height * pos_y)
+            self.pos = width * pos_x, height * pos_y
         elif not pygame.sprite.spritecollideany(self, block):
             self.right_cur_frame = (self.right_cur_frame + 1) % len(self.right_frames)
             self.image = self.right_frames[self.right_cur_frame]
             self.rect = self.image.get_rect().move(self.pos[0] + 10, self.pos[1])
             self.pos = self.pos[0] + 10, self.pos[1]
 
-    def move_left(self, block, thorn):
+    def move_left(self, block, thorn, pos_x, pos_y, width=50, height=50):
         if pygame.sprite.spritecollideany(self, thorn):
-            terminate()
+            self.rect = self.image.get_rect().move(width * pos_x, height * pos_y)
+            self.pos = width * pos_x, height * pos_y
         elif not pygame.sprite.spritecollideany(self, block):
             self.left_cur_frame = (self.left_cur_frame + 1) % len(self.left_frames)
             self.image = self.left_frames[self.left_cur_frame]
@@ -112,14 +114,15 @@ class Player(pygame.sprite.Sprite):
                     self.pos = self.pos[0], jump_height - 2
                     jump_height -= 2
 
-    def fall(self, level_map, width, height):
+    def fall(self, level_map, width, height, pos_x, pos_y):
         level = level_map
         x, y = self.pos[0] // width, self.pos[1] // height + 1
         if level[y][x] == '.':
             self.rect = self.image.get_rect().move(self.pos[0], self.pos[1] - 5)
             self.pos = self.pos[0], self.pos[1] + 5
         elif level[y][x] == '*':
-            terminate()
+            self.rect = self.image.get_rect().move(width * pos_x, height * pos_y)
+            self.pos = width * pos_x, height * pos_y
 
     def update(self):
         self.image = self.main_frame
@@ -175,12 +178,12 @@ def main():
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            player.move_right(block_group, thorn_group)
+            player.move_right(block_group, thorn_group, hero_pos[0], hero_pos[1])
         elif keys[pygame.K_a]:
-            player.move_left(block_group, thorn_group)
+            player.move_left(block_group, thorn_group, hero_pos[0], hero_pos[1])
         elif keys[pygame.K_SPACE]:
             player.jump(level_map, block_width, block_height)
-        player.fall(level_map, block_width, block_height)
+        player.fall(level_map, block_width, block_height, hero_pos[0], hero_pos[1])
 
         screen.blit(background, (0, 0))
         thorn_group.draw(screen)
