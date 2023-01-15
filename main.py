@@ -1,4 +1,4 @@
-from random import randint
+from random import randrange
 import sys
 import pygame
 import os
@@ -23,8 +23,20 @@ def load_image(name, color_key=None):
     return image
 
 
-def next_level():
-    return randint(1, 2)
+def next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames):
+    level_map = load_level(f'level{randrange(1, 3)}.txt')
+
+    block_arr, thorn_arr, hero_pos, finish_pos = generate_level(level_map, block_image, thorn_image)
+    player = Player(player_image, player_right_frames, player_left_frames, 50, 50, hero_pos[0], hero_pos[1])
+
+    block_group = pygame.sprite.Group()
+    thorn_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    player_group.add(player)
+    block_group.add(i for i in block_arr)
+    thorn_group.add(i for i in thorn_arr)
+
+    return level_map, block_arr, thorn_arr, hero_pos, finish_pos, player, block_group, thorn_group, player_group
 
 
 def load_level(filename):
@@ -35,7 +47,7 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-def generate_level(level, b_img, t_img, b_width, t_width, b_height, t_height):
+def generate_level(level, b_img, t_img, b_width=50, t_width=50, b_height=50, t_height=51):
     start_x, start_y, finish_x, finish_y = None, None, None, None
     block_arr = []
     thorn_arr = []
@@ -103,7 +115,7 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect().move(self.pos[0] - 10, self.pos[1])
             self.pos = self.pos[0] - 10, self.pos[1]
 
-    def jump(self, level_map, width, height):
+    def jump(self, level_map, width=50, height=50):
         level = level_map
         x, y = self.pos[0] // width, self.pos[1] // height + 1
         jump_height = self.pos[1]
@@ -114,7 +126,7 @@ class Player(pygame.sprite.Sprite):
                     self.pos = self.pos[0], jump_height - 2
                     jump_height -= 2
 
-    def fall(self, level_map, width, height, pos_x, pos_y):
+    def fall(self, level_map, pos_x, pos_y, width=50, height=50):
         level = level_map
         x, y = self.pos[0] // width, self.pos[1] // height + 1
         if level[y][x] == '.':
@@ -132,29 +144,22 @@ def main():
     pygame.init()
     fps = 30
     size = 1200, 800
-    block_width = block_height = 50
-    thorn_width, thorn_height = 50, 51
     screen = pygame.display.set_mode(size)
     clock = pygame.time.Clock()
+    # block width and height = 50
+    # thorn width = 50
+    # thorn height = 51
 
+    heart_image = load_image('heart.png')
     background = load_image('background.png')
     block_image = load_image('block.png')
     thorn_image = load_image('thorn.png')
-    level_map = load_level(f'level{next_level()}.txt')
     player_image = load_image('hero_sprite(x50)/0.png')
     player_left_frames = [load_image(f'hero_sprite(x50)/{i}.png') for i in range(1, 6)]
     player_right_frames = [load_image(f'hero_sprite(x50)/{i}.png') for i in range(6, 11)]
 
-    block_arr, thorn_arr, hero_pos, finish_pos = generate_level(level_map, block_image, thorn_image,
-                                                                block_width, thorn_width, block_height, thorn_height)
-    player = Player(player_image, player_right_frames, player_left_frames, 50, 50, hero_pos[0], hero_pos[1])
-
-    block_group = pygame.sprite.Group()
-    thorn_group = pygame.sprite.Group()
-    player_group = pygame.sprite.Group()
-    player_group.add(player)
-    block_group.add(i for i in block_arr)
-    thorn_group.add(i for i in thorn_arr)
+    level_map, block_arr, thorn_arr, hero_pos, finish_pos, player, block_group, thorn_group, player_group = \
+        next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames)
 
     while True:
         for event in pygame.event.get():
@@ -162,19 +167,8 @@ def main():
                 terminate()
 
         if finish(player, finish_pos[0], finish_pos[1]):
-            level_map = load_level(f'level{next_level()}.txt')
-
-            block_arr, thorn_arr, hero_pos, finish_pos = generate_level(level_map, block_image, thorn_image,
-                                                                        block_width, thorn_width, block_height,
-                                                                        thorn_height)
-            player = Player(player_image, player_right_frames, player_left_frames, 50, 50, hero_pos[0], hero_pos[1])
-
-            block_group = pygame.sprite.Group()
-            thorn_group = pygame.sprite.Group()
-            player_group = pygame.sprite.Group()
-            player_group.add(player)
-            block_group.add(i for i in block_arr)
-            thorn_group.add(i for i in thorn_arr)
+            level_map, block_arr, thorn_arr, hero_pos, finish_pos, player, block_group, thorn_group, player_group = \
+                next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
@@ -182,8 +176,8 @@ def main():
         elif keys[pygame.K_a]:
             player.move_left(block_group, thorn_group, hero_pos[0], hero_pos[1])
         elif keys[pygame.K_SPACE]:
-            player.jump(level_map, block_width, block_height)
-        player.fall(level_map, block_width, block_height, hero_pos[0], hero_pos[1])
+            player.jump(level_map)
+        player.fall(level_map, hero_pos[0], hero_pos[1])
 
         screen.blit(background, (0, 0))
         thorn_group.draw(screen)
