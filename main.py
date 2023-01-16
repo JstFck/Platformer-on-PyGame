@@ -163,6 +163,7 @@ class Player(pygame.sprite.Sprite):
         self.pos = width * pos_x, height * pos_y
         for i in range(self.heart_count):
             self.heart_arr.append(Heart(heart_image, 10, 10 + i * 10))
+        pygame.time.delay(500)
 
     def update(self):
         self.image = self.main_frame
@@ -179,6 +180,7 @@ def main():
     # thorn_height = 51
 
     # loading image
+    game_over_background = load_image('game_over.png')
     heart_image = load_image('heart.png')
     background = load_image('background.png')
     block_image = load_image('block.png')
@@ -210,22 +212,27 @@ def main():
             player.jump(level_map)
         player.fall(heart_image, level_map, hero_pos[0], hero_pos[1])
 
-        if not player.heart_count:
-            terminate()
-
         for item in heart_group:
             item.kill()
             heart_group.clear(screen, background)
         heart_group.add(player.heart_arr)
 
         # drawing sprites
-        screen.blit(background, (0, 0))
-        thorn_group.draw(screen)
-        block_group.draw(screen)
-        player_group.draw(screen)
-        heart_group.draw(screen)
-        player_group.update()
-        pygame.display.flip()
+        if player.heart_count:
+            screen.blit(background, (0, 0))
+            thorn_group.draw(screen)
+            block_group.draw(screen)
+            player_group.draw(screen)
+            heart_group.draw(screen)
+            player_group.update()
+            pygame.display.flip()
+        elif not player.heart_count:
+            screen.blit(game_over_background, (0, 0))
+            if keys[pygame.K_x]:
+                level_map, hero_pos, finish_pos, player, block_group, thorn_group, player_group, heart_group = \
+                    next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames,
+                               heart_image)
+            pygame.display.flip()
         clock.tick(fps)
 
 
