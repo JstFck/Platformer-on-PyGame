@@ -1,4 +1,4 @@
-import loadingLevel
+import loading_level
 import pygame
 import sys
 
@@ -24,19 +24,19 @@ def main():
     # thorn_height = 51
 
     # loading image
-    game_over_background = loadingLevel.load_image('game_over.png')
-    heart_image = loadingLevel.load_image('heart.png')
-    background = loadingLevel.load_image('background.png')
-    block_image = loadingLevel.load_image('block.png')
-    thorn_image = loadingLevel.load_image('thorn.png')
-    player_image = loadingLevel.load_image('hero_sprite(x50)/0.png')
-    player_left_frames = [loadingLevel.load_image(f'hero_sprite(x50)/{i}.png') for i in range(1, 6)]
-    player_right_frames = [loadingLevel.load_image(f'hero_sprite(x50)/{i}.png') for i in range(6, 11)]
+    game_over_background = loading_level.load_image('game_over.png')
+    heart_image = loading_level.load_image('heart.png')
+    background = loading_level.load_image('background.png')
+    block_image = loading_level.load_image('block.png')
+    thorn_image = loading_level.load_image('thorn.png')
+    player_image = loading_level.load_image('hero_sprite(x50)/0.png')
+    player_left_frames = [loading_level.load_image(f'hero_sprite(x50)/{i}.png') for i in range(1, 6)]
+    player_right_frames = [loading_level.load_image(f'hero_sprite(x50)/{i}.png') for i in range(6, 11)]
 
     # loading level and sprites
-    level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group = \
-        loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames,
-                                heart_image)
+    level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
+        heart_group = loading_level.next_level(block_image, thorn_image, player_image, player_right_frames,
+                                               player_left_frames, heart_image)
 
     while True:
         for event in pygame.event.get():
@@ -45,8 +45,8 @@ def main():
 
         if finish(hero, finish_pos[0], finish_pos[1]):
             level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
-                heart_group = loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames,
-                                                      player_left_frames, heart_image, current_level_map)
+                heart_group = loading_level.next_level(block_image, thorn_image, player_image, player_right_frames,
+                                                       player_left_frames, heart_image, current_level_map)
 
         # checked what keys pressed
         keys = pygame.key.get_pressed()
@@ -77,8 +77,8 @@ def main():
             screen.blit(game_over_background, (0, 0))
             if keys[pygame.K_x]:
                 level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
-                    heart_group = loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames,
-                                                          player_left_frames, heart_image, current_level_map)
+                    heart_group = loading_level.next_level(block_image, thorn_image, player_image, player_right_frames,
+                                                           player_left_frames, heart_image, current_level_map)
             pygame.display.flip()
         clock.tick(fps)
 
