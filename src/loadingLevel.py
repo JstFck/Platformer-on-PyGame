@@ -20,8 +20,12 @@ def load_image(name, color_key=None):
 
 
 # loading level and sprites
-def next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames, heart_img):
-    level_map = load_level(f'level{randrange(1, 3)}.txt')
+def next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames, heart_img,
+               cur_level_map=None):
+    level_map = load_level(f'level{randrange(1, 4)}.txt')
+    while level_map == cur_level_map:
+        level_map = load_level(f'level{randrange(1, 4)}.txt')
+    cur_level = level_map
 
     block_arr, thorn_arr, hero_pos, finish_pos = generate_level(level_map, block_image, thorn_image)
     hero = player.Player(player_image, player_right_frames, player_left_frames, hero_pos[0], hero_pos[1])
@@ -38,12 +42,12 @@ def next_level(block_image, thorn_image, player_image, player_right_frames, play
     player_group.add(hero)
     heart_group.add(i for i in heart_arr)
 
-    return level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group
+    return level_map, cur_level, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group
 
 
 # loading level file
 def load_level(filename):
-    fullname = os.path.join('../data', filename)
+    fullname = os.path.join('../levels', filename)
     with open(fullname, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
     max_width = max(map(len, level_map))

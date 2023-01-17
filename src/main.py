@@ -34,7 +34,7 @@ def main():
     player_right_frames = [loadingLevel.load_image(f'hero_sprite(x50)/{i}.png') for i in range(6, 11)]
 
     # loading level and sprites
-    level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group = \
+    level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group = \
         loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames,
                                 heart_image)
 
@@ -44,9 +44,9 @@ def main():
                 terminate()
 
         if finish(hero, finish_pos[0], finish_pos[1]):
-            level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group = \
-                loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames, player_left_frames,
-                                        heart_image)
+            level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
+                heart_group = loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames,
+                                                      player_left_frames, heart_image, current_level_map)
 
         # checked what keys pressed
         keys = pygame.key.get_pressed()
@@ -76,9 +76,9 @@ def main():
         elif not hero.heart_count:
             screen.blit(game_over_background, (0, 0))
             if keys[pygame.K_x]:
-                level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, heart_group = \
-                    loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames,
-                                            player_left_frames, heart_image)
+                level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
+                    heart_group = loadingLevel.next_level(block_image, thorn_image, player_image, player_right_frames,
+                                                          player_left_frames, heart_image, current_level_map)
             pygame.display.flip()
         clock.tick(fps)
 
