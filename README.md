@@ -1,4 +1,4 @@
-Hello, my name is Aleksadner, and I'm a developer of this pygame platformer.
+Hello, my name is Aleksandr, and I'm a developer of this pygame platformer.
 
 Use requirements.txt to install necessary dependencies: 
 
