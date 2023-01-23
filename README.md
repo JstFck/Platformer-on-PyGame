@@ -1,4 +1,9 @@
-Hello, my name is Aleksandr, and I'm a developer of this pygame platformer.
+
+
+
+This game was made game using [pygame](https://www.pygame.org/) framework.
+
+## Installation
 
 Use requirements.txt to install necessary dependencies: 
 
@@ -12,6 +17,7 @@ To start:
 python -m src.main
 ```
 
-In the game, you can control the character by using the buttons `A`, `D` and `SPACE`. Also, you have only 3 tries to pass the level. If you failed just try again by pressed button `X`.
+## Controls
+You can control the character by using the buttons `A`, `D` and `SPACE`.  If you have failed three times, just try again by pressing button `X`.
 
 Enjoy :)
