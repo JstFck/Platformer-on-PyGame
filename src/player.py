@@ -1,65 +1,75 @@
+import game_sprites
 import pygame
-import sprites
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, player_image, right_frames, left_frames, x, y, width=50, height=50):
+    def __init__(self, player_image, right_frames, left_frames, x, y, blocks, thorns, width=50, height=50):
         super().__init__()
-        self.right_frames = right_frames
-        self.left_frames = left_frames
-        self.main_frame = player_image
+        self.right_frames, self.left_frames, self.main_frame = right_frames, left_frames, player_image
         self.right_cur_frame, self.left_cur_frame = 0, 0
         self.image = self.main_frame
         self.rect = self.image.get_rect().move(width * x, height * y)
-        self.pos = width * x, height * y
+        self.start_pos, self.pos = (width * x, height * y), (width * x, height * y)
         self.heart_count = 3
-        self.heart_arr = []
+        self.blocks, self.thorns = blocks, thorns
+        self.jump_count = 0
+        self.right, self.left, self.on_ground = False, False, True
 
-    def move_right(self, block, thorn, pos_x, pos_y, heart_image):
-        if pygame.sprite.spritecollideany(self, thorn):
-            self.damage(heart_image, pos_x, pos_y)
-        elif not pygame.sprite.spritecollideany(self, block):
-            self.right_cur_frame = (self.right_cur_frame + 1) % len(self.right_frames)
-            self.image = self.right_frames[self.right_cur_frame]
-            self.rect = self.image.get_rect().move(self.pos[0] + 10, self.pos[1])
-            self.pos = self.pos[0] + 10, self.pos[1]
+    def set_right_cur_frame(self):
+        self.right_cur_frame = (self.right_cur_frame + 1) % len(self.right_frames)
+        self.image = self.right_frames[self.right_cur_frame]
 
-    def move_left(self, block, thorn, pos_x, pos_y, heart_image):
-        if pygame.sprite.spritecollideany(self, thorn):
-            self.damage(heart_image, pos_x, pos_y)
-        elif not pygame.sprite.spritecollideany(self, block):
-            self.left_cur_frame = (self.left_cur_frame + 1) % len(self.left_frames)
-            self.image = self.left_frames[self.left_cur_frame]
-            self.rect = self.image.get_rect().move(self.pos[0] - 10, self.pos[1])
-            self.pos = self.pos[0] - 10, self.pos[1]
+    def set_left_cur_frame(self):
+        self.left_cur_frame = (self.left_cur_frame + 1) % len(self.left_frames)
+        self.image = self.left_frames[self.left_cur_frame]
 
-    def jump(self, level_map, width=50, height=50):
-        level = level_map
-        x, y = self.pos[0] // width, self.pos[1] // height + 1
-        jump_height = self.pos[1]
-        if level[y][x] == '#':
-            for i in range(50):
-                if jump_height - 2 >= 0:
-                    self.rect = self.image.get_rect().move(self.pos[0], jump_height - 2)
-                    self.pos = self.pos[0], jump_height - 2
-                    jump_height -= 2
+    def move(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
+        self.pos = (self.pos[0] + dx, self.pos[1] + dy)
 
-    def fall(self, heart_image, level_map, pos_x, pos_y, width=50, height=50):
-        level = level_map
-        x, y = self.pos[0] // width, self.pos[1] // height + 1
-        if level[y][x] == '.':
-            self.rect = self.image.get_rect().move(self.pos[0], self.pos[1] - 5)
-            self.pos = self.pos[0], self.pos[1] + 5
-        elif level[y][x] == '*':
-            self.damage(heart_image, pos_x, pos_y)
+    def move_right(self):
+        self.set_right_cur_frame()
+        self.move(10, 0)
 
-    def damage(self, heart_image, pos_x, pos_y, width=50, height=50):
-        self.heart_arr = []
-        self.heart_count -= 1
-        self.rect = self.image.get_rect().move(width * pos_x, height * pos_y)
-        self.pos = width * pos_x, height * pos_y
-        for i in range(self.heart_count):
-            self.heart_arr.append(sprites.Heart(heart_image, 10, 10 + i * 10))
+    def move_left(self):
+        self.set_left_cur_frame()
+        self.move(-10, 0)
+
+    def fall(self):
+        self.move(0, -self.jump_count)
+        self.jump_count -= 1
+
+    def collide(self):
+        if pygame.sprite.spritecollideany(self, self.thorns):
+            self.heart_count -= 1
+            self.on_ground = True
+            self.right = False
+            self.left = False
+            self.rect = self.image.get_rect().move(self.start_pos[0], self.start_pos[1])
+        if pygame.sprite.spritecollideany(self, self.blocks):
+            if self.right:
+                self.move(-10, 0)
+            if self.left:
+                self.move(10, 0)
+            rect = game_sprites.CheckSprite(self.main_frame, self.pos[0], self.pos[1] - 25)
+            if pygame.sprite.spritecollideany(rect, self.blocks):
+                self.move(0, -self.jump_count)
+                self.jump_count = 0
+            else:
+                self.on_ground = True
+                self.move(0, self.jump_count)
+                self.jump_count = 0
+        else:
+            self.on_ground = False
 
     def update(self):
-        self.image = self.main_frame
+        if not self.on_ground:
+            self.fall()
+        if self.right:
+            self.move_right()
+        if self.left:
+            self.move_left()
+        if not self.right and not self.left:
+            self.image = self.main_frame
+        self.collide()
