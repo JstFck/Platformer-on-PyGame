@@ -48,18 +48,23 @@ class Player(pygame.sprite.Sprite):
             self.left = False
             self.rect = self.image.get_rect().move(self.start_pos[0], self.start_pos[1])
         if pygame.sprite.spritecollideany(self, self.blocks):
-            if self.right:
+            rect_right = game_sprites.CheckSprite(self.main_frame, self.pos[0] + 10, self.pos[1] - 1)
+            rect_left = game_sprites.CheckSprite(self.main_frame, self.pos[0] - 10, self.pos[1] - 1)
+            rect_up = game_sprites.CheckSprite(self.main_frame, self.pos[0], self.pos[1] - 10)
+            rect_down = game_sprites.CheckSprite(self.main_frame, self.pos[0], self.pos[1] + 10)
+            if self.right and pygame.sprite.spritecollideany(rect_right, self.blocks):
                 self.move(-10, 0)
-            if self.left:
+            if self.left and pygame.sprite.spritecollideany(rect_left, self.blocks):
                 self.move(10, 0)
-            rect = game_sprites.CheckSprite(self.main_frame, self.pos[0], self.pos[1] - 25)
-            if pygame.sprite.spritecollideany(rect, self.blocks):
-                self.move(0, -self.jump_count)
-                self.jump_count = 0
-            else:
-                self.on_ground = True
-                self.move(0, self.jump_count)
-                self.jump_count = 0
+            if not self.on_ground:
+                for block in self.blocks:
+                    if pygame.sprite.collide_mask(rect_up, block):
+                        self.jump_count = 0
+                        self.rect.y = block.rect.y + 50
+                    if pygame.sprite.collide_mask(rect_down, block):
+                        self.on_ground = True
+                        self.jump_count = 0
+                        self.rect.y = block.rect.y - 50
         else:
             self.on_ground = False
 

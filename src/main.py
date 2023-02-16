@@ -6,11 +6,10 @@ import sys
 
 FPS = 30
 SIZE = 1200, 800
-MOVE_SPEED = 10
-GRAVITY = 7
 
 pygame.init()
 SCREEN = pygame.display.set_mode(SIZE)
+pygame.display.set_caption("Platformer")
 
 GAME_OVER_BACKGROUND = loading_level.load_image('game_over.png')
 BACKGROUND = loading_level.load_image('background.png')
@@ -28,8 +27,8 @@ def terminate():
 
 
 # checking player position and finish
-def finish(hero, pos_x, pos_y, width=50, height=50):
-    return hero.pos[0] == pos_x * width and hero.pos[1] == pos_y * height
+def finish(h, pos_x, pos_y, width=50, height=50):
+    return h.pos[0] == pos_x * width and h.pos[1] == pos_y * height
 
 
 def main():

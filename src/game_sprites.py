@@ -32,5 +32,5 @@ class CheckSprite(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
         super().__init__()
         self.image = image
-        self.rect = pygame.Rect(x, y, 50, 50)
+        self.rect = self.image.get_rect().move(x, y)
         self.mask = pygame.mask.from_surface(self.image)
