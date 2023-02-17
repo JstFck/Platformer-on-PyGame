@@ -43,6 +43,7 @@ class Player(pygame.sprite.Sprite):
     def collide(self):
         if pygame.sprite.spritecollideany(self, self.thorns):
             self.heart_count -= 1
+            self.jump_count = 0
             self.on_ground = True
             self.right = False
             self.left = False
@@ -66,7 +67,9 @@ class Player(pygame.sprite.Sprite):
                         self.jump_count = 0
                         self.rect.y = block.rect.y - 50
         else:
-            self.on_ground = False
+            rect_down = game_sprites.CheckSprite(self.main_frame, self.pos[0], self.pos[1] + 10)
+            if not pygame.sprite.spritecollideany(rect_down, self.blocks):
+                self.on_ground = False
 
     def update(self):
         if not self.on_ground:

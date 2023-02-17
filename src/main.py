@@ -28,7 +28,7 @@ def terminate():
 
 # checking player position and finish
 def finish(h, pos_x, pos_y, width=50, height=50):
-    return h.pos[0] == pos_x * width and h.pos[1] == pos_y * height
+    return h.rect.x == pos_x * width and h.rect.y == pos_y * height
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and hero.on_ground:
                     hero.jump_count = 15
                     hero.on_ground = False
                 if event.key == pygame.K_d:
@@ -66,6 +66,11 @@ def main():
             level_map, current_level_map, hero_pos, finish_pos, hero, block_group, thorn_group, player_group, \
                 heart_group = loading_level.next_level(BLOCK_IMAGE, THORN_IMAGE, PLAYER_IMAGE, PLAYER_RIGHT_FRAMES,
                                                        PLAYER_LEFT_FRAMES, current_level_map)
+        if not hero.pos[0] in range(0, 1200) and hero.pos[1] in range(0, 800):
+            hero.rect = hero.image.get_rect().move(hero.start_pos[0], hero.start_pos[1] - 5)
+            hero.on_ground = True
+            hero.right = False
+            hero.left = False
 
         heart_group.empty()
         for i in range(hero.heart_count):
